@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Run a flask app that returns Hello HBNB"""
+"""Starts a Flask web application."""
 from flask import Flask
 
 
@@ -7,39 +7,44 @@ app = Flask(__name__)
 
 
 @app.route("/", strict_slashes=False)
-def hello():
-    """return hello NMBB"""
+def hello_HBNB():
+    """Displays Hello HBNB!"""
     return "Hello HBNB!"
 
 
 @app.route("/hbnb", strict_slashes=False)
-def hbnb():
-    """return hbnb"""
+def HBNB():
+    """Displays HBNB"""
     return "HBNB"
 
 
-@app.route("/c/<string:text>", strict_slashes=False)
-def c_is_fun(text):
-    """Configure C is Fun"""
-    text = text.replace('_', ' ')
-    value = 'C {}'.format(text)
-    return value
+@app.route("/c/<text>", strict_slashes=False)
+def c_route(text):
+    """Displays "C ", followed by the value of the text variable
+    underscore _ symbols replaced with a space"""
+    new_text = text.replace("_", " ")
+    return f"C {new_text}"
 
 
 @app.route("/python/", strict_slashes=False)
-@app.route("/python/<string:text>", strict_slashes=False)
-def python_is_fun(text='is cool'):
-    """Configure Python is Fun"""
-    text = text.replace('_', ' ')
-    value = 'Python {}'.format(text)
-    return value
+def python_default(text="is cool"):
+    """Displays the default value of text"""
+    return f"Python {text}"
+
+
+@app.route("/python/<text>", strict_slashes=False)
+def python_route(text="is cool"):
+    """Displays "Python ", followed by the value of the text variable
+    underscore _ symbols replaced with a space"""
+    new_text = text.replace("_", " ")
+    return f"Python {new_text}"
 
 
 @app.route("/number/<int:n>", strict_slashes=False)
-def is_number(n):
-    """Check and return if it is an integer"""
-    return '{} is a number'.format(n)
+def number(n):
+    """Displays “n is a number” only if n is an integer"""
+    return f"{n} is a number"
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0")
+    app.run(host='0.0.0.0', port=5000)

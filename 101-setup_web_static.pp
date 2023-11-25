@@ -1,20 +1,57 @@
-#update software package
-exec { 'install everything':
-  command  => "
-  sudo apt-get -y update;
-  sudo apt-get -y install nginx;
-  sudo ufw allow 'Nginx HTTP';
-  sudo mkdir -p /data/web_static/releases/test /data/web_static/shared/;
-  echo "<h1>Welcome to the world of computing</h1>" > /data/web_static/releases/test/index.html;
-  if [ -d "/data/web_static/current" ];
-  then
-    sudo rm -rf /data/web_static/current;
-  fi;
-  sudo ln -sf /data/web_static/releases/test/ /data/web_static/current;
-  sudo chown -hR ubuntu:ubuntu /data/;
-  sudo sed -i '11i\\tlocation /hbnb_static {\n\t\talias /data/web_static/current/;\n\t}' /etc/nginx/sites-available/default;
-  echo 'Successfully added';
-  sudo ln -sf '/etc/nginx/sites-available/default' '/etc/nginx/sites-enabled/default';
-  sudo service nginx restart",
-  provider => shell,
+# Redoing the task #0 but by using Puppet
+
+$nginx_conf = "server {
+	listen 80 default_server;
+	location /hbnb_static/ {
+		alias /data/web_static/current/;
+		index index.html;
+	}
+}"
+
+package { 'nginx':
+  ensure   => 'present',
+  provider => 'apt'
+}
+
+-> file { '/data':
+  ensure => 'directory'
+}
+
+-> file { '/data/web_static':
+  ensure => 'directory'
+}
+
+-> file { '/data/web_static/releases':
+  ensure => 'directory'
+}
+
+-> file { '/data/web_static/releases/test':
+  ensure => 'directory'
+}
+
+-> file { '/data/web_static/shared':
+  ensure => 'directory'
+}
+
+-> file { '/data/web_static/releases/test/index.html':
+  ensure  => 'present',
+  content => 'Hello World!!'
+}
+
+-> file { '/data/web_static/current':
+  ensure => link,
+  target => '/data/web_static/releases/test/',
+}
+
+-> exec { 'chown -R ubuntu:ubuntu /data/':
+  path => '/usr/bin/:/usr/local/bin/:/bin/'
+}
+
+file { '/etc/nginx/sites-available/default':
+  ensure  => 'present',
+  content => $nginx_conf,
+}
+
+exec { 'nginx restart':
+  path => '/etc/init.d/'
 }
